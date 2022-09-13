@@ -1,4 +1,19 @@
-GET http://localhost:3000/
+GET http://localhost:3000/api/wilders
+
+###
+
+GET http://localhost:3000/api/wilders/1
+
+###
+
+PUT http://localhost:3000/api/wilders/1
+Content-Type: application/json
+
+{ "name": "Yann" }
+
+###
+
+DELETE http://localhost:3000/api/wilders/2
 
 ###
 

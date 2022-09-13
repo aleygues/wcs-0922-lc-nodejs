@@ -23,15 +23,10 @@ module.exports = {
   findAll: (req, res) => {
     const repository = datasource.getRepository("Skill");
 
+    // With SQL raw query
     repository.query("SELECT * FROM skill").then((data) => {
       res.json(data);
     });
-
-    /**
-      repository.find().then((data) => {
-        res.json(data);
-      });
-     */
   },
   find: (req, res) => {
     /**

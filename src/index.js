@@ -1,6 +1,6 @@
 const express = require("express");
 const datasource = require("./utils");
-const wildersController = require("./controllers/Wilders");
+const wildersController = require("./controllers/Wilders"); // → objet (key-value)
 const skillsController = require("./controllers/Skills");
 
 const app = express();
@@ -15,9 +15,10 @@ app.get("/", (req, res) => {
  * Wilders Routes
  */
 app.post("/api/wilders", wildersController.create);
-
-// GET http://localhost:3000/api/wilders/3
+app.get("/api/wilders", wildersController.findAll);
 app.get("/api/wilders/:wilderId", wildersController.find);
+app.put("/api/wilders/:wilderId", wildersController.update);
+app.delete("/api/wilders/:wilderId", wildersController.delete);
 
 /**
  * Skills Routes
