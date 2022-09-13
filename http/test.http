@@ -1,0 +1,23 @@
+GET http://localhost:3000/
+
+###
+
+GET http://localhost:3000/api/wilders
+
+###
+
+POST http://localhost:3000/api/wilders
+Content-Type: application/json
+
+{ "name": "Pierre" }
+
+###
+
+GET http://localhost:3000/api/skills
+
+###
+
+POST http://localhost:3000/api/skills
+Content-Type: application/json
+
+{ "name": "HTML" }
