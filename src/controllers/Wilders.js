@@ -1,3 +1,4 @@
+const { In } = require("typeorm");
 const datasource = require("../utils");
 
 module.exports = {
@@ -27,7 +28,7 @@ module.exports = {
       res.json(data);
     });
   },
-  find: (req, res) => {
+  find: async (req, res) => {
     /**
      * req.body → body request
      * → req.params → /api/wilders/:wilderId
@@ -36,50 +37,24 @@ module.exports = {
     const wilderId = req.params.wilderId;
 
     // find 1 wilder by its ID
-    datasource
+    const data = await datasource
       .getRepository("Wilder")
-      .findOneBy({ id: wilderId })
-      .then(
-        (data) => {
-          res.json(data);
-        },
-        (err) => {
-          console.error("Error: ", err);
-          res.json({ success: false });
-        }
-      );
+      .findOneBy({ id: wilderId });
+
+    res.json(data);
   },
-  update: (req, res) => {
-    /**
-     * 2 options:
-     * - raw SQL → UPDATE
-     * - TypeORM: find + save
-     */
+  update: async (req, res) => {
     const wilderId = req.params.wilderId;
     const repository = datasource.getRepository("Wilder");
 
-    // find 1 wilder by its ID
-    // Google → typeorm get 1 item by ID
-    repository.findOneBy({ id: wilderId }).then(
-      (wilder) => {
-        Object.assign(wilder, req.body);
-        // ~= wilder.name = req.body.name;
+    const wilder = await repository.findOneByOrFail({ id: wilderId });
 
-        repository.save(wilder).then(
-          (updatedWilder) => {
-            res.json(updatedWilder);
-          },
-          (err) => {
-            console.error("Error when saving: ", err);
-            res.json({ success: false });
-          }
-        );
-      },
-      (err) => {
-        console.error("Error when finding: ", err);
-        res.json({ success: false });
-      }
-    );
+    // Object.assign(wilder, req.body);
+    wilder.name = req.body.name;
+    wilder.skills = req.body.skills;
+
+    const updatedWilder = await repository.save(wilder, { reload: true });
+    res.json(updatedWilder);
   },
   delete: (req, res) => {
     /**
@@ -120,5 +95,89 @@ module.exports = {
         res.json({ success: false });
       }
     ); */
+  },
+  addSkill: (req, res) => {
+    const wilderId = req.params.wilderId;
+    const skillId = req.body.skillId;
+    const manager = datasource.manager;
+
+    manager
+      .query(
+        "INSERT INTO wilder_skills_skill(wilderId, skillId) VALUES (?, ?)",
+        [wilderId, skillId]
+      )
+      .then(
+        (id) => {
+          manager
+            .query(
+              `
+              SELECT wilder.id AS wilderId, wilder.name AS wilderName, skill.id AS skillId, skill.name AS skillName 
+              FROM wilder 
+              LEFT JOIN wilder_skills_skill AS wss ON wss.wilderId = wilder.id
+              LEFT JOIN skill ON skill.id = wss.skillId
+              WHERE wilder.id=?
+            `,
+              [wilderId]
+            )
+            .then((rows) => {
+              // because of the left join, we got as many rows as the wilder has skills
+              // we need to flatten them
+              const wilder = {
+                id: rows[0].wilderId,
+                name: rows[0].wilderName,
+                skills: rows // 1st remove all rows not related to skills, then map them to recreate skill entities
+                  .filter(
+                    (row) => row.skillId !== null && row.skillId !== undefined
+                  )
+                  .map((row) => ({ id: row.skillId, name: row.skillName })),
+              };
+              res.json(wilder);
+            });
+        },
+        (err) => {
+          console.error("Error: ", err);
+          res.json({ success: false });
+        }
+      );
+
+    /* 
+    datasource
+      .getRepository("Wilder")
+      .findOneByOrFail({ id: wilderId })
+      .then((wilderToUpdate) => {
+        datasource
+          .getRepository("Skill")
+          .findOneByOrFail({ id: skillId })
+          .then((skillToInsert) => {
+            wilderToUpdate.skills.push(skillToInsert);
+            datasource
+              .getRepository("Wilder")
+              .save(wilderToUpdate)
+              .then(
+                (updatedWilder) => {
+                  res.json(updatedWilder);
+                },
+                (err) => {
+                  console.error("Error when saving: ", err);
+                  res.json({ success: false });
+                }
+              );
+          });
+      }); */
+  },
+  addSkills: async (req, res) => {
+    const wilderId = req.params.wilderId;
+    const skillsIds = req.body.skillsIds;
+    const repository = datasource.getRepository("Wilder");
+
+    const wilder = await repository.findOneByOrFail({ id: wilderId });
+    const skills = await datasource
+      .getRepository("Skill")
+      .find({ where: { id: In(skillsIds) } });
+
+    wilder.skills = skills;
+
+    const updatedWilder = await repository.save(wilder);
+    res.json(updatedWilder);
   },
 };

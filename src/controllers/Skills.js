@@ -29,11 +29,6 @@ module.exports = {
     });
   },
   find: (req, res) => {
-    /**
-     * req.body → body request
-     * → req.params → /api/skills/:skillId
-     * req.query → /api/skills?skillId=...
-     */
     const skillId = req.params.skillId;
 
     // find 1 skill by its ID

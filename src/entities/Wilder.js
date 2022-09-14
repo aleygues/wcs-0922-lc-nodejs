@@ -13,6 +13,14 @@ const WilderEntity = new EntitySchema({
       type: "text",
     },
   },
+  relations: {
+    skills: {
+      target: "Skill",
+      type: "many-to-many",
+      joinTable: true,
+      eager: true,
+    },
+  },
 });
 
 module.exports = WilderEntity;
