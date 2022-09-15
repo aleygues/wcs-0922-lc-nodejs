@@ -14,6 +14,13 @@ const SkillEntity = new EntitySchema({
       unique: true,
     },
   },
+  relations: {
+    upvotes: {
+      type: "one-to-many",
+      inverseSide: "skill",
+      target: "Upvote",
+    },
+  },
 });
 
 module.exports = SkillEntity;

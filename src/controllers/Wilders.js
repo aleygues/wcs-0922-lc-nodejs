@@ -24,9 +24,11 @@ module.exports = {
   findAll: (req, res) => {
     const repository = datasource.getRepository("Wilder");
 
-    repository.find().then((data) => {
-      res.json(data);
-    });
+    repository
+      .find({ relations: ["upvotes", "upvotes.skill"] })
+      .then((data) => {
+        res.json(data);
+      });
   },
   find: async (req, res) => {
     /**
@@ -47,7 +49,10 @@ module.exports = {
     const wilderId = req.params.wilderId;
     const repository = datasource.getRepository("Wilder");
 
-    const wilder = await repository.findOneByOrFail({ id: wilderId });
+    const wilder = await repository.findOne({
+      where: { id: wilderId },
+      relations: ["skills"],
+    });
 
     // Object.assign(wilder, req.body);
     wilder.name = req.body.name;

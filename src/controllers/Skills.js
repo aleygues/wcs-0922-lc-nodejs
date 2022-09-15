@@ -20,13 +20,18 @@ module.exports = {
         }
       );
   },
-  findAll: (req, res) => {
+  findAll: async (req, res) => {
     const repository = datasource.getRepository("Skill");
 
     // With SQL raw query
-    repository.query("SELECT * FROM skill").then((data) => {
+    /* repository.query("SELECT * FROM skill").then((data) => {
       res.json(data);
+    }); */
+
+    const skills = await repository.find({
+      relations: ["upvotes", "upvotes.wilder"],
     });
+    res.json(skills);
   },
   find: (req, res) => {
     const skillId = req.params.skillId;

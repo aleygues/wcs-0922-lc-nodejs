@@ -1,0 +1,66 @@
+GET http://localhost:5000/api/wilders
+
+###
+
+GET http://localhost:5000/api/wilders/2
+
+###
+
+PUT http://localhost:5000/api/wilders/2
+Content-Type: application/json
+
+{
+  "name": "Yohann",
+  "skills": [{ "id": 2 }]
+}
+
+### 1 by 1
+
+POST http://localhost:5000/api/wilders/2/skills
+Content-Type: application/json
+
+{
+  "skillId": 1
+}
+
+### Multiple skills at once
+
+POST http://localhost:5000/api/wilders/2/skills
+Content-Type: application/json
+
+{
+  "skillsIds": [1, 2]
+}
+
+###
+
+POST http://localhost:5000/api/wilders
+Content-Type: application/json
+
+{ "name": "Emeline" }
+
+###
+
+DELETE http://localhost:5000/api/wilders/2
+
+###
+
+GET http://localhost:5000/api/wilders
+
+###
+
+POST http://localhost:5000/api/wilders
+Content-Type: application/json
+
+{ "name": "Pierre" }
+
+###
+
+GET http://localhost:5000/api/skills
+
+###
+
+POST http://localhost:5000/api/skills
+Content-Type: application/json
+
+{ "name": "NodeJS" }

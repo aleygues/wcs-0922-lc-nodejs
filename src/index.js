@@ -1,10 +1,13 @@
 const express = require("express");
+const cors = require("cors");
 const datasource = require("./utils");
 const wildersController = require("./controllers/Wilders"); // → objet (key-value)
 const skillsController = require("./controllers/Skills");
+const upvotesController = require("./controllers/Upvotes");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -37,10 +40,10 @@ app.get("/api/wilders/:wilderId", asyncHandler(wildersController.find));
 app.put("/api/wilders/:wilderId", asyncHandler(wildersController.update));
 app.delete("/api/wilders/:wilderId", wildersController.delete);
 //app.post("/api/wilders/:wilderId/skills", wildersController.addSkill);
-app.post(
+/* app.post(
   "/api/wilders/:wilderId/skills",
   asyncHandler(wildersController.addSkills)
-);
+); */
 
 /**
  * Skills Routes
@@ -48,9 +51,18 @@ app.post(
 app.post("/api/skills", skillsController.create);
 app.get("/api/skills", skillsController.findAll);
 
+/**
+ * Upvotes Routes
+ */
+app.post("/api/upvotes", asyncHandler(upvotesController.create));
+app.put(
+  "/api/upvotes/:upvoteId/upvote",
+  asyncHandler(upvotesController.upvote)
+);
+
 // end of request
 
-app.listen(3000, async () => {
+app.listen(5000, async () => {
   console.log("Server started, youpi!");
 
   /**
@@ -62,8 +74,9 @@ app.listen(3000, async () => {
   try {
     await datasource.initialize();
     console.log("I'm connected!");
-  } catch {
+  } catch (err) {
     console.log("Dommage");
+    console.error(err);
   }
 });
 
