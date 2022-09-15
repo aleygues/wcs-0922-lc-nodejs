@@ -3,6 +3,13 @@ const EntitySchema = typeorm.EntitySchema;
 
 const UpvoteEntity = new EntitySchema({
   name: "Upvote",
+  indices: [
+    {
+      name: "skillId_wilderId_unique",
+      columns: ["wilder", "skill"],
+      unique: true,
+    },
+  ],
   columns: {
     id: {
       primary: true,
